@@ -39,6 +39,9 @@ public class KafkaStreamsConfig {
         properties.put(StreamsConfig.CLIENT_ID_CONFIG, "streamsClientId");
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, "streamsGroupId");
 
+        properties.put(StreamsConfig.producerPrefix(StreamsConfig.RETRIES_CONFIG), Integer.MAX_VALUE);
+        properties.put(StreamsConfig.consumerPrefix(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG), Integer.MAX_VALUE);
+
         properties.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         properties.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         properties.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, WallclockTimestampExtractor.class.getName());
@@ -64,8 +67,7 @@ public class KafkaStreamsConfig {
     public KStream<String, String> kStream(StreamsBuilder kStreamBuilder) {
         KStream<String, String> stream = kStreamBuilder
                 .stream("src-topic", Consumed.with(Serdes.String(), Serdes.String()));
-        KStream<String, User> userStream =
-                stream.mapValues(this::getUserFromString);
+        KStream<String, User> userStream = stream.mapValues(this::getUserFromString);
         userStream.to("out-topic", Produced.with(Serdes.String(), userSerde()));
 
         return stream;
