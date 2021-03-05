@@ -31,6 +31,12 @@ import java.util.Map;
 @EnableKafkaStreams
 @Configuration
 public class KafkaStreamsConfig {
+    private final ObjectMapper objectMapper;
+
+    public KafkaStreamsConfig(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
     @Bean(name = KafkaStreamsDefaultConfiguration.DEFAULT_STREAMS_CONFIG_BEAN_NAME)
     public KafkaStreamsConfiguration kStreamsConfigs() {
         Map<String, Object> properties = new HashMap<>();
@@ -54,11 +60,6 @@ public class KafkaStreamsConfig {
     }
 
     @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
-    }
-
-    @Bean
     public Serde<User> userSerde() {
         return Serdes.serdeFrom(new JsonSerializer<>(), new JsonDeserializer<>(User.class));
     }
@@ -76,7 +77,7 @@ public class KafkaStreamsConfig {
     User getUserFromString(String userString) {
         User user = null;
         try {
-            user = objectMapper().readValue(userString, User.class);
+            user = objectMapper.readValue(userString, User.class);
         } catch (JsonProcessingException e) {
             log.error(e.getMessage(), e);
         }
